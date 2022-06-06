@@ -55,7 +55,7 @@ RUN echo "<?php phpinfo();" >> /var/www/index.php
 WORKDIR /var/www/
 VOLUME /var/www
 
-EXPOSE 80 443
+EXPOSE 80
 
-#CMD ["/usr/local/bin/run", "apache2ctl", "-D", "FOREGROUND"]
-CMD ["/usr/local/bin/run"]
+CMD ["/usr/local/bin/run", "apache2ctl", "-D", "FOREGROUND"]
+#CMD ["/usr/local/bin/run"]
