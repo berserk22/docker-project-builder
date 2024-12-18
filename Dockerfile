@@ -1,63 +1,53 @@
-FROM ubuntu:18.04
-
-#RUN docker-php-ext-install pdo pdo_mysql
+FROM ubuntu:20.04
 
 ARG DEBIAN_FRONTEND=noninteractive
 
 RUN apt-get update -y && apt-get install -y software-properties-common language-pack-en-base
 RUN LC_ALL=C.UTF-8 add-apt-repository ppa:ondrej/php
 
-
-#RUN apt-get -y update && apt-get install -yq \
-#		libfreetype6-dev \
-#		libjpeg62-turbo-dev \
-#		libpng-dev \
-#	&& docker-php-ext-install -j$(nproc) iconv gd
-
-#install Imagemagick & PHP Imagick ext
 RUN apt-get update && apt-get install -y \
-    apache2 \
-    libapache2-mod-php7.4 \
-    php7.4 \
-    php7.4-cli \
-    php7.4-gd \
-    php7.4-json \
-    php7.4-ldap \
-    php7.4-mbstring \
-    php7.4-mysql \
-    php7.4-xml \
-    php7.4-xsl \
-    php7.4-zip \
-    php7.4-soap \
-    php7.4-opcache \
-    php7.4-curl \
-    php7.4-bcmath \
-    php7.4-apcu \
-    php7.4-apcu-bc \
+    nginx \
+    php8.1 \
+    php8.1-fpm \
+    php8.1-gd \
+    php8.1-ldap \
+    php8.1-mbstring \
+    php8.1-mysql \
+    php8.1-xml \
+    php8.1-xsl \
+    php8.1-zip \
+    php8.1-soap \
+    php8.1-opcache \
+    php8.1-curl \
+    php8.1-bcmath \
+    php8.1-apcu \
     php-xdebug \
     php-mcrypt \
-    mysql-client
-#RUN pecl install imagick
+    mysql-client \
+    curl \
+    nano \
+    wget
 
-#RUN pecl install pthreads
-#RUN pecl install xdebug
 
-# ======= PHP ZTS / Thread =====
-#RUN php -r "echo PHP_ZTS;"
-#RUN php -r "print_r(class_exists('Thread'));"
+#COPY build/nginx.conf /etc/nginx/sites-available/default
 
-# ======= APACHE Host =====
-COPY build/apache.conf /etc/apache2/sites-available/000-default.conf
+
+COPY build/nginx.conf /etc/nginx/sites-available/default
+
+COPY build/php_pool.conf /etc/php/8.1/fpm/pool.d/www.conf
+
+
+#COPY build/apache.conf /etc/apache2/sites-available/000-default.conf
 COPY build/run.sh /usr/local/bin/run
 RUN chmod +x /usr/local/bin/run
-RUN a2enmod rewrite
+#RUN a2enmod rewrite
 
-RUN echo "<?php phpinfo();" >> /var/www/index.php
+#RUN echo "<?php phpinfo();" >> /var/www/index.php
 
 WORKDIR /var/www/
 VOLUME /var/www
 
 EXPOSE 80
 
-CMD ["/usr/local/bin/run", "apache2ctl", "-D", "FOREGROUND"]
+CMD ["/usr/local/bin/run", "nginx", "FOREGROUND"]
 #CMD ["/usr/local/bin/run"]
